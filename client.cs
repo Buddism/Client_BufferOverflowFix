@@ -35,17 +35,21 @@ function runBufferOverflowFix()
     $bufferOverflowFixSchedule = schedule(1, 0, "runBufferOverflowFix");
 }
 
-function enableBufferOverflowFix()
+function enableBufferOverflowFix(%silent)
 {
 	if(!isEventPending($bufferOverflowFixSchedule))
 	{
 		runBufferOverflowFix();
-		newChatHud_AddLine("\c6Buffer Overflow Fix enabled, Distance: " @ $BufferOverflowFix::Distance);
+		if(!%silent)
+			newChatHud_AddLine("\c6Buffer Overflow Fix enabled");
 	}
 }
 
-function disableBufferOverflowFix()
+function disableBufferOverflowFix(%silent)
 {
+	if(!%silent)
+		newChatHud_AddLine("\c6Buffer Overflow Fix disabled");
+
 	$BufferOverflowFix::Distance = $BufferOverflowFix::DefaultDistance;
 	$BufferOverflow::LastFlushPosition = "";
 	cancel($bufferOverflowFixSchedule);
@@ -56,14 +60,14 @@ function clientCmdBufferOverflowHandshake(%this)
 	commandToServer('BufferOverflowFixHandshake', $BufferOverflowFix::Version);
 }
 
-function clientCmdBufferOverflowSet(%this, %cmd, %value)
+function clientCmdBufferOverflowSet(%cmd, %value)
 {
 	switch$(%cmd)
 	{
 		case "Enable":
-			enableBufferOverflowFix();
+			enableBufferOverflowFix(%value == 1);
 		case "Disable":
-			disableBufferOverflowFix();
+			disableBufferOverflowFix(%value == 1);
 
 		case "Distance":
 			if(%distance > 0)
@@ -71,12 +75,12 @@ function clientCmdBufferOverflowSet(%this, %cmd, %value)
 	}
 }
 
-package Client_BufferOverflowFix
+package Script_BufferOverflowFix
 {
 	function disconnectedCleanup(%doReconnect)
 	{
-		disableBufferOverflowFix();
+		disableBufferOverflowFix(true);
 		return parent::disconnectedCleanup(%doReconnect);
 	}
 };
-activatePackage(Client_BufferOverflowFix);
+activatePackage(Script_BufferOverflowFix);

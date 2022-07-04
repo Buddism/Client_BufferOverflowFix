@@ -1,23 +1,25 @@
 //basically robbed this from BLG default prefs
 //https://forum.blockland.us/index.php?topic=320521.0 heres a good reference
-function BOF_registerPref(%cat, %title, %type, %variable, %addon, %default, %params, %callback, %legacy, %isSecret, %isHostOnly) {
+function BOF_registerPref(%cat, %title, %type, %variable, %addon, %default, %params, %className) {
+	if(%className $= "")
+		%className = "BOF_preference";
+
     %pref = new ScriptObject(Preference)
     {
-        className     = "BOF_preference";
+        className     = %className;
 
         addon         = %addon;
         category      = %cat;
         title         = %title;
 
-        type          = %type;
-        params        = %params;
-
         variable      = %variable;
 
+        type          = %type;
+        params        = %params;
         defaultValue  = %default;
 
-        hostOnly      = %isHostOnly;
-        secret        = %isSecret;
+        hostOnly      = false;
+        secret        = false;
 
         loadNow        = false; // load value on creation instead of with pool (optional)
         noSave         = false; // do not save (optional)
@@ -27,32 +29,27 @@ function BOF_registerPref(%cat, %title, %type, %variable, %addon, %default, %par
 	return %pref;
 }
 
-function BOF_preference::sendEnabled(%this)
+function Pref_BufferOverflow_Enabled::onUpdate(%this, %value)
 {
+	%silent = $Pref::Server::BufferOverflow::Silent;
 	%funcStr = $Pref::Server::BufferOverflowFix::Enabled ? "Enable" : "Disable";
 	for(%i = 0; %i < clientGroup.getCount(); %i++)
-		commandToClient(clientGroup.getObject(%i), 'BufferOverflowSet', %funcStr);
+		commandToClient(clientGroup.getObject(%i), 'BufferOverflowSet', %funcStr, %silent);
 }
-
-function BOF_preference::sendDistance(%this)
+function Pref_BufferOverflow_Distance::onUpdate(%this, %value)
 {
+	%silent = $Pref::Server::BufferOverflow::Silent;
 	%distance = $Pref::Server::BufferOverflowFix::Distance;
 	for(%i = 0; %i < clientGroup.getCount(); %i++)
-		commandToClient(clientGroup.getObject(%i), 'BufferOverflowSet', "Distance", %distance);
+		commandToClient(clientGroup.getObject(%i), 'BufferOverflowSet', "Distance", %distance, %silent);
 }
 
 if(!$BufferOverflow::SetUpPrefs)
 {
 	registerPreferenceAddon("Script_BufferOverflowFix", "Buffer Overflow Settings", "control_power_blue");
 
-	%enabled = BOF_registerPref("Options", "Enabled", "bool", "$Pref::Server::BufferOverflowFix::Enabled", "Script_BufferOverflowFix", 0, "");
-	%distance = BOF_registerPref("Options", "Distance", "num", "$Pref::Server::BufferOverflowFix::Distance", "Script_BufferOverflowFix", 600, "100 100000 50");
-
-	%enabled.updateCallback	= "sendEnabled";
-  	%enabled.loadCallback	= "sendEnabled";
-
-	%distance.updateCallback = "sendDistance";
-  	%distance.loadCallback	 = "sendDistance";
+	%enabled	= BOF_registerPref("Options", "Enabled"	, "bool", "$Pref::Server::BufferOverflowFix::Enabled" , "Script_BufferOverflowFix", 0	, ""			 , "Pref_BufferOverflow_Enabled" );
+	%distance	= BOF_registerPref("Options", "Distance", "num"	, "$Pref::Server::BufferOverflowFix::Distance", "Script_BufferOverflowFix", 600	, "100 100000 50", "Pref_BufferOverflow_Distance");
 
 	$BufferOverflow::SetUpPrefs = true;
 }
@@ -64,7 +61,12 @@ package Script_BufferOverflowFix
 	function GameConnection::onClientEnterGame(%this)
 	{
 		if($Pref::Server::BufferOverflowFix::Enabled)
-			commandToClient(%this, 'BufferOverflowHandshake', $Pref::Server::BufferOverflowFix::Distance);
+		{
+			commandToClient(%this, 'BufferOverflowHandshake');
+
+			commandToClient(%this, 'BufferOverflowSet', "Enable", %silent = false);
+			commandToClient(%this, 'BufferOverflowSet', "Distance", $Pref::Server::BufferOverflowFix::Distance);
+		}
 
 		return parent::onClientEnterGame(%this);
 	}

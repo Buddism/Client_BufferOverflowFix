@@ -1,4 +1,7 @@
-Name: Shit
 Author: Buddy (28116)
-Description: 
-most of the evidence supports that this is an nvidia driver issue
+Description:
+adds two blockland glass prefs
+requires clients to have Client_BufferOverflowFix
+Buffer Overflow Fix
+	Enabled
+	Distance

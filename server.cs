@@ -1,5 +1,3 @@
-//this will not be executed by default (should be named Script_BufferOverflowFix)
-
 //basically robbed this from BLG default prefs
 //https://forum.blockland.us/index.php?topic=320521.0 heres a good reference
 function BOF_registerPref(%cat, %title, %type, %variable, %addon, %default, %params, %callback, %legacy, %isSecret, %isHostOnly) {
@@ -33,6 +31,8 @@ if(!$BufferOverflow::SetUpPrefs)
 
 	BOF_registerPref("Options", "Enabled", "bool", "$Pref::Server::BufferOverflowFix::Enabled", "Script_BufferOverflowFix", 0, "");
 	BOF_registerPref("Options", "Distance", "num", "$Pref::Server::BufferOverflowFix::Distance", "Script_BufferOverflowFix", 600, "100 100000 50");
+
+	$BufferOverflow::SetUpPrefs = true;
 }
 
 

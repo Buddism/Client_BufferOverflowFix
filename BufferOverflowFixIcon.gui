@@ -9,7 +9,7 @@ new GuiBitmapCtrl(BufferOverflowFixIcon) {
    enabled = "1";
    visible = "0";
    clipToParent = "1";
-   bitmap = "Add-Ons/Client_BufferOverflowFix/BufferOverflowIcon.png";
+   bitmap = "./BufferOverflowIcon.png";
    wrap = "0";
    lockAspectRatio = "1";
    alignLeft = "0";

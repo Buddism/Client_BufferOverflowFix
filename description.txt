@@ -1,0 +1,4 @@
+Name: Shit
+Author: Buddy (28116)
+Description: 
+most of the evidence supports that this is an nvidia driver issue

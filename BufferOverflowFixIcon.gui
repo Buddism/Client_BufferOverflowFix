@@ -4,8 +4,8 @@ new GuiBitmapCtrl(BufferOverflowFixIcon) {
    horizSizing = "right";
    vertSizing = "bottom";
    position = "672 3";
-   extent = "167 32";
-   minExtent = "8 8";
+   extent = "192 32";
+   minExtent = "192 32";
    enabled = "1";
    visible = "0";
    clipToParent = "1";
@@ -19,4 +19,6 @@ new GuiBitmapCtrl(BufferOverflowFixIcon) {
    mColor = "255 255 255 255";
    mMultiply = "0";
 };
+
+playGui.add(BufferOverflowFixIcon);
 //--- OBJECT WRITE END ---

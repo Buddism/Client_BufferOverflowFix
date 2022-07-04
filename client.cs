@@ -36,7 +36,7 @@ function enableBufferOverflowFix()
 	if(!isEventPending($bufferOverflowFixSchedule))
 	{
 		runBufferOverflowFix();
-		newChatHud_AddLine("\c6Buffer Overflow Fix enabled");
+		newChatHud_AddLine("\c6Buffer Overflow Fix enabled, Distance: " @ $BufferOverflowFix::Distance);
 	}
 }
 
@@ -53,7 +53,6 @@ function clientCmdBufferOverflowHandshake(%this, %distance)
 			$BufferOverflowFix::Distance = mClamp(%distance, 100, 1000000); //dont know why youd want such a high number
 
 		enableBufferOverflowFix();
-
 		commandToServer('BufferOverflowFixHandshake', $BufferOverflowFix::Version);
 	}
 }

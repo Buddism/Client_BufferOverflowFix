@@ -52,30 +52,14 @@ function Pref_BufferOverflow_InstantDistance::onUpdate(%this, %value)
 		commandToClient(clientGroup.getObject(%i), 'BufferOverflowSet', "InstantDistance", %distance, %silent);
 }
 
-//super hacky for debug
-if(isObject(ScriptBufferOverflowFixPrefs))
-	ScriptBufferOverflowFixPrefs.delete();
-
-for(%I = PreferenceGroup.getcount() - 1; %I >= 0; %I--)
-{
-	%t = PreferenceGroup.getObject(%I);
-	if(%t.addon $= "Script_BufferOverflowFix")
-	{
-		talk(%i);
-		%t.delete();
-	}
-}
-
-$BufferOverflow::SetUpPrefs = false;
-
 if(!$BufferOverflow::SetUpPrefs)
 {
 	registerPreferenceAddon("Script_BufferOverflowFix", "Buffer Overflow Settings", "control_power_blue");
 
 	BOF_registerPref("Options", "Enabled"		 		, "bool", "$Pref::Server::BufferOverflowFix::Enabled" 		  , "Script_BufferOverflowFix", 0	, ""			, "Pref_BufferOverflow_Enabled" );
 	BOF_registerPref("Options", "Silent Enable/Disable" , "bool", "$Pref::Server::BufferOverflowFix::Silent" 		  , "Script_BufferOverflowFix", 0	, ""			, "Pref_BufferOverflow_Silent" );
-	BOF_registerPref("Options", "Distance"		 		, "num" , "$Pref::Server::BufferOverflowFix::Distance"		  , "Script_BufferOverflowFix", 600	, "100 100000 1", "Pref_BufferOverflow_Distance");
-	BOF_registerPref("Options", "InstantDistance"		, "num" , "$Pref::Server::BufferOverflowFix::InstantDistance", "Script_BufferOverflowFix", 800	, "100 100000 1", "Pref_BufferOverflow_InstantDistance");
+	BOF_registerPref("Options", "Distance"		 		, "num" , "$Pref::Server::BufferOverflowFix::Distance"		  , "Script_BufferOverflowFix", 600	, "1 100000 1", "Pref_BufferOverflow_Distance");
+	BOF_registerPref("Options", "InstantDistance"		, "num" , "$Pref::Server::BufferOverflowFix::InstantDistance", "Script_BufferOverflowFix", 800	, "1 100000 1", "Pref_BufferOverflow_InstantDistance");
 
 	$BufferOverflow::SetUpPrefs = true;
 }
@@ -92,7 +76,7 @@ package Script_BufferOverflowFix
 
 			commandToClient(%this, 'BufferOverflowSet', "Enable", %silent = false);
 			commandToClient(%this, 'BufferOverflowSet', "Distance", $Pref::Server::BufferOverflowFix::Distance);
-			commandToClient(%this, 'BufferOverflowSet', "Distance", $Pref::Server::BufferOverflowFix::InstantDistance);
+			commandToClient(%this, 'BufferOverflowSet', "InstantDistance", $Pref::Server::BufferOverflowFix::InstantDistance);
 		}
 
 		return parent::onClientEnterGame(%this);

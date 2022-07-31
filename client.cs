@@ -88,7 +88,7 @@ function clientCmdBufferOverflowSet(%cmd, %value)
 
 		case "Distance":
 			%distance = mClampF(%value, 100, 1000000);
-			if(%distance > 0)
+			if(%value > 0 && %distance > 0)
 			{
 				$BufferOverflowFix::Distance = %distance;
 				$BufferOverflowFix::InstantDistance = $BufferOverflowFix::Distance * 1.333333;
@@ -96,7 +96,7 @@ function clientCmdBufferOverflowSet(%cmd, %value)
 
 		case "InstantDistance":
 			%distance = mClampF(%value, 100, 1000000);
-			if(%distance > $BufferOverflowFix::Distance * 1.1)
+			if(%value > 0 && %distance >= $BufferOverflowFix::Distance * 1.1)
 				$BufferOverflowFix::InstantDistance = %distance;
 	}
 }

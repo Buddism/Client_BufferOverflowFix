@@ -1,7 +1,7 @@
 //most of the evidence supports that this is an nvidia driver issue
 $BufferOverflowFix::Version = 2.1;
 $BufferOverflowFix::DefaultDistance = 600;
-$BufferOverflowFix::DefaultInstantDistance = 800;
+$BufferOverflowFix::DefaultInstantDistance = 700;
 
 $BufferOverflowFix::Distance			  = $BufferOverflowFix::DefaultDistance;
 $BufferOverflowFix::InstantDistance 	  = $BufferOverflowFix::DefaultInstantDistance;
@@ -39,6 +39,8 @@ function runBufferOverflowFix()
 			flushVBOCache();
 		else
 			$BufferOverflowFix::flushSchedule = schedule(1000, 0, "flushVBOCache");
+
+		newChatHud_AddLine( (%distance > $BufferOverflowFix::InstantDistance ? "\c3" : "") @ %distance);
 
 		$BufferOverflowFix::iconSchedule = BufferOverflowFixIcon.schedule(1000, setVisible, false);
 		$BufferOverflowFix::LastFlushPosition = %position;
@@ -107,7 +109,7 @@ function clientCmdBufferOverflowSet(%cmd, %value)
 	}
 }
 
-package Script_BufferOverflowFix
+package Script_Client_BufferOverflowFix
 {
 	function disconnectedCleanup(%doReconnect)
 	{
@@ -118,4 +120,4 @@ package Script_BufferOverflowFix
 		return parent::disconnectedCleanup(%doReconnect);
 	}
 };
-activatePackage(Script_BufferOverflowFix);
+activatePackage(Script_Client_BufferOverflowFix);

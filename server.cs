@@ -64,7 +64,7 @@ if(!$BufferOverflow::SetUpPrefs)
 }
 
 
-package Script_BufferOverflowFix
+package Script_Server_BufferOverflowFix
 {
 	//when a client spawns
 	function GameConnection::onClientEnterGame(%this)
@@ -81,4 +81,4 @@ package Script_BufferOverflowFix
 		return parent::onClientEnterGame(%this);
 	}
 };
-activatePackage(Script_BufferOverflowFix);
+activatePackage(Script_Server_BufferOverflowFix);

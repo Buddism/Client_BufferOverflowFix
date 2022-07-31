@@ -37,18 +37,16 @@ function Pref_BufferOverflow_Enabled::onUpdate(%this, %value)
 }
 function Pref_BufferOverflow_Distance::onUpdate(%this, %value)
 {
-	%silent = $Pref::Server::BufferOverflowFix::Silent;
 	%distance = $Pref::Server::BufferOverflowFix::Distance;
-	commandToAll('BufferOverflowSet', "Distance", %distance, %silent);
+	commandToAll('BufferOverflowSet', "Distance", %distance);
 
 	Pref_BufferOverflow_InstantDistance::onUpdate();
 }
 function Pref_BufferOverflow_InstantDistance::onUpdate(%this, %value)
 {
-	%silent = $Pref::Server::BufferOverflowFix::Silent;
 	%distance = getMax($Pref::Server::BufferOverflowFix::InstantDistance, $Pref::Server::BufferOverflowFix::Distance * 1.1);
 	$Pref::Server::BufferOverflowFix::InstantDistance = %distance;
-	commandToAll('BufferOverflowSet', "InstantDistance", %distance, %silent);
+	commandToAll('BufferOverflowSet', "InstantDistance", %distance);
 }
 
 if(!$BufferOverflow::SetUpPrefs)
@@ -73,7 +71,8 @@ package Script_Server_BufferOverflowFix
 		{
 			commandToClient(%this, 'BufferOverflowHandshake');
 
-			commandToClient(%this, 'BufferOverflowSet', "Enable", %silent = false);
+			%silent = $Pref::Server::BufferOverflowFix::Silent;
+			commandToClient(%this, 'BufferOverflowSet', "Enable", %silent);
 			commandToClient(%this, 'BufferOverflowSet', "Distance", $Pref::Server::BufferOverflowFix::Distance);
 			commandToClient(%this, 'BufferOverflowSet', "InstantDistance", $Pref::Server::BufferOverflowFix::InstantDistance);
 		}

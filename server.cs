@@ -37,7 +37,10 @@ function Pref_BufferOverflow_Enabled::onUpdate(%this, %value)
 }
 function Pref_BufferOverflow_Distance::onUpdate(%this, %value)
 {
-	%distance = $Pref::Server::BufferOverflowFix::Distance;
+	%distance = getMax($Pref::Server::BufferOverflowFix::Distance, 100);
+	%distance = mFloatLength(%distance, 1); //match the pref decimal length of 1
+	$Pref::Server::BufferOverflowFix::Distance = %distance;
+
 	commandToAll('BufferOverflowSet', "Distance", %distance);
 
 	Pref_BufferOverflow_InstantDistance::onUpdate();
@@ -45,6 +48,7 @@ function Pref_BufferOverflow_Distance::onUpdate(%this, %value)
 function Pref_BufferOverflow_InstantDistance::onUpdate(%this, %value)
 {
 	%distance = getMax($Pref::Server::BufferOverflowFix::InstantDistance, $Pref::Server::BufferOverflowFix::Distance * 1.1);
+	%distance = mFloatLength(%distance, 1); //match the pref decimal length of 1
 	$Pref::Server::BufferOverflowFix::InstantDistance = %distance;
 	commandToAll('BufferOverflowSet', "InstantDistance", %distance);
 }

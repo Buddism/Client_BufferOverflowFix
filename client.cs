@@ -3,8 +3,9 @@ $BufferOverflowFix::Version = 2.1;
 $BufferOverflowFix::DefaultDistance = 600;
 $BufferOverflowFix::DefaultInstantDistance = 800;
 
-$BufferOverflowFix::Distance		= $BufferOverflowFix::DefaultDistance;
-$BufferOverflowFix::InstantDistance = $BufferOverflowFix::DefaultInstantDistance;
+$BufferOverflowFix::Distance			  = $BufferOverflowFix::DefaultDistance;
+$BufferOverflowFix::InstantDistance 	  = $BufferOverflowFix::DefaultInstantDistance;
+$BufferOverflowFix::hasSetInstantDistance = false;
 
 exec("./BufferOverflowFixIcon.gui");
 
@@ -61,8 +62,6 @@ function disableBufferOverflowFix(%silent)
 	if(!%silent)
 		newChatHud_AddLine("\c6Buffer Overflow Fix disabled");
 
-	$BufferOverflowFix::Distance = $BufferOverflowFix::DefaultDistance;
-	$BufferOverflowFix::InstantDistance = $BufferOverflowFix::DefaultInstantDistance;
 	$BufferOverflowFix::LastFlushPosition = "";
 
 	cancel($bufferOverflowFix::loopSchedule);
@@ -91,13 +90,20 @@ function clientCmdBufferOverflowSet(%cmd, %value)
 			if(%value > 0 && %distance > 0)
 			{
 				$BufferOverflowFix::Distance = %distance;
-				$BufferOverflowFix::InstantDistance = $BufferOverflowFix::Distance * 1.333333;
+				if(!$BufferOverflowFix::hasSetInstantDistance)
+					$BufferOverflowFix::InstantDistance = $BufferOverflowFix::Distance * 1.333333;
+				else {
+					$BufferOverflowFix::InstantDistance = getMax($BufferOverflowFix::InstantDistance, %distance * 1.1);
+				}
 			}
 
 		case "InstantDistance":
 			%distance = mClampF(%value, 100, 1000000);
 			if(%value > 0 && %distance >= $BufferOverflowFix::Distance * 1.1)
+			{
 				$BufferOverflowFix::InstantDistance = %distance;
+				$BufferOverflowFix::hasSetInstantDistance = true;
+			}
 	}
 }
 
@@ -105,6 +111,9 @@ package Script_BufferOverflowFix
 {
 	function disconnectedCleanup(%doReconnect)
 	{
+		$BufferOverflowFix::Distance = $BufferOverflowFix::DefaultDistance;
+		$BufferOverflowFix::InstantDistance = $BufferOverflowFix::DefaultInstantDistance;
+		$BufferOverflowFix::hasSetInstantDistance = false;
 		disableBufferOverflowFix(true);
 		return parent::disconnectedCleanup(%doReconnect);
 	}

@@ -33,33 +33,32 @@ function Pref_BufferOverflow_Enabled::onUpdate(%this, %value)
 {
 	%silent = $Pref::Server::BufferOverflowFix::Silent;
 	%funcStr = $Pref::Server::BufferOverflowFix::Enabled ? "Enable" : "Disable";
-	for(%i = 0; %i < clientGroup.getCount(); %i++)
-		commandToClient(clientGroup.getObject(%i), 'BufferOverflowSet', %funcStr, %silent);
+	commandToAll('BufferOverflowSet', %funcStr, %silent);
 }
 function Pref_BufferOverflow_Distance::onUpdate(%this, %value)
 {
 	%silent = $Pref::Server::BufferOverflowFix::Silent;
 	%distance = $Pref::Server::BufferOverflowFix::Distance;
-	for(%i = 0; %i < clientGroup.getCount(); %i++)
-		commandToClient(clientGroup.getObject(%i), 'BufferOverflowSet', "Distance", %distance, %silent);
+	commandToAll('BufferOverflowSet', "Distance", %distance, %silent);
+
+	Pref_BufferOverflow_InstantDistance::onUpdate();
 }
 function Pref_BufferOverflow_InstantDistance::onUpdate(%this, %value)
 {
 	%silent = $Pref::Server::BufferOverflowFix::Silent;
 	%distance = getMax($Pref::Server::BufferOverflowFix::InstantDistance, $Pref::Server::BufferOverflowFix::Distance * 1.1);
 	$Pref::Server::BufferOverflowFix::InstantDistance = %distance;
-	for(%i = 0; %i < clientGroup.getCount(); %i++)
-		commandToClient(clientGroup.getObject(%i), 'BufferOverflowSet', "InstantDistance", %distance, %silent);
+	commandToAll('BufferOverflowSet', "InstantDistance", %distance, %silent);
 }
 
 if(!$BufferOverflow::SetUpPrefs)
 {
 	registerPreferenceAddon("Script_BufferOverflowFix", "Buffer Overflow Settings", "control_power_blue");
 
-	BOF_registerPref("Options", "Enabled"		 		, "bool", "$Pref::Server::BufferOverflowFix::Enabled" 		  , "Script_BufferOverflowFix", 0	, ""			, "Pref_BufferOverflow_Enabled" );
-	BOF_registerPref("Options", "Silent Enable/Disable" , "bool", "$Pref::Server::BufferOverflowFix::Silent" 		  , "Script_BufferOverflowFix", 0	, ""			, "Pref_BufferOverflow_Silent" );
+	BOF_registerPref("Options", "Enabled"		 		, "bool", "$Pref::Server::BufferOverflowFix::Enabled" 		  , "Script_BufferOverflowFix", 0	, ""		  , "Pref_BufferOverflow_Enabled" );
+	BOF_registerPref("Options", "Silent Enable/Disable" , "bool", "$Pref::Server::BufferOverflowFix::Silent" 		  , "Script_BufferOverflowFix", 0	, ""		  , "Pref_BufferOverflow_Silent" );
 	BOF_registerPref("Options", "Distance"		 		, "num" , "$Pref::Server::BufferOverflowFix::Distance"		  , "Script_BufferOverflowFix", 600	, "1 100000 1", "Pref_BufferOverflow_Distance");
-	BOF_registerPref("Options", "InstantDistance"		, "num" , "$Pref::Server::BufferOverflowFix::InstantDistance", "Script_BufferOverflowFix", 800	, "1 100000 1", "Pref_BufferOverflow_InstantDistance");
+	BOF_registerPref("Options", "InstantDistance"		, "num" , "$Pref::Server::BufferOverflowFix::InstantDistance" , "Script_BufferOverflowFix", 800	, "1 100000 1", "Pref_BufferOverflow_InstantDistance");
 
 	$BufferOverflow::SetUpPrefs = true;
 }

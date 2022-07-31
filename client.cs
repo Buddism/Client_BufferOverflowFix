@@ -10,7 +10,7 @@ exec("./BufferOverflowFixIcon.gui");
 
 function runBufferOverflowFix()
 {
-    cancel($BufferOverflowFixSchedule::loopSchedule);
+    cancel($BufferOverflowFix::loopSchedule);
 
     %client = nameToID("serverConnection");
     if(!isObject(%client)) //if the client is no longer in a server this object should not exist
@@ -18,7 +18,7 @@ function runBufferOverflowFix()
 
     %player = %client.getControlObject();
     if(!isObject(%player))
-        return $BufferOverflowFixSchedule::loopSchedule = schedule(1, 0, "runBufferOverflowFix");
+        return $BufferOverflowFix::loopSchedule = schedule(1, 0, "runBufferOverflowFix");
 
     %position = %player.getTransform();
 
@@ -43,12 +43,12 @@ function runBufferOverflowFix()
 		$BufferOverflowFix::LastFlushPosition = %position;
     }
 
-    $BufferOverflowFixSchedule::loopSchedule = schedule(1, 0, "runBufferOverflowFix");
+    $BufferOverflowFix::loopSchedule = schedule(1, 0, "runBufferOverflowFix");
 }
 
 function enableBufferOverflowFix(%silent)
 {
-	if(!isEventPending($BufferOverflowFixSchedule::loopSchedule))
+	if(!isEventPending($BufferOverflowFix::loopSchedule))
 	{
 		runBufferOverflowFix();
 		if(!%silent)

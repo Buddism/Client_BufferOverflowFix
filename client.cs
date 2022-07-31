@@ -1,13 +1,16 @@
 //most of the evidence supports that this is an nvidia driver issue
-$BufferOverflowFix::Version = 2; //doubt ill ever need to change this
+$BufferOverflowFix::Version = 2.1;
 $BufferOverflowFix::DefaultDistance = 600;
-$BufferOverflowFix::Distance = $BufferOverflowFix::DefaultDistance;
+$BufferOverflowFix::DefaultInstantDistance = 800;
+
+$BufferOverflowFix::Distance		= $BufferOverflowFix::DefaultDistance;
+$BufferOverflowFix::InstantDistance = $BufferOverflowFix::DefaultInstantDistance;
 
 exec("./BufferOverflowFixIcon.gui");
 
 function runBufferOverflowFix()
 {
-    cancel($bufferOverflowFixSchedule);
+    cancel($BufferOverflowFixSchedule::loopSchedule);
 
     %client = nameToID("serverConnection");
     if(!isObject(%client)) //if the client is no longer in a server this object should not exist
@@ -15,29 +18,37 @@ function runBufferOverflowFix()
 
     %player = %client.getControlObject();
     if(!isObject(%player))
-        return $bufferOverflowFixSchedule = schedule(1, 0, "runBufferOverflowFix");
+        return $BufferOverflowFixSchedule::loopSchedule = schedule(1, 0, "runBufferOverflowFix");
 
     %position = %player.getTransform();
 
-	if($BufferOverflow::LastFlushPosition $= "")
-		$BufferOverflow::LastFlushPosition = %position;
+	if($BufferOverflowFix::LastFlushPosition $= "")
+		$BufferOverflowFix::LastFlushPosition = %position;
 
-    if(vectorDist($BufferOverflow::LastFlushPosition, %position) > $BufferOverflowFix::Distance)
-    {
+	%distance = vectorDist($BufferOverflowFix::LastFlushPosition, %position);
+    if(%distance > $BufferOverflowFix::Distance)
+    {	
         //empty vram (if it exceeds a few gb (>3GB?) it can crash)
 		BufferOverflowFixIcon.setVisible(true);
-		schedule(1000, 0, "flushVBOCache");
-		BufferOverflowFixIcon.schedule(1000, setVisible, 0);
 
-        $BufferOverflow::LastFlushPosition = %position;
+		cancel($BufferOverflowFix::flushSchedule);
+		cancel($BufferOverflowFix::iconSchedule);
+
+		if(%distance > $BufferOverflowFix::InstantDistance)
+			flushVBOCache();
+		else
+			$BufferOverflowFix::flushSchedule = schedule(1000, 0, "flushVBOCache");
+
+		$BufferOverflowFix::iconSchedule = BufferOverflowFixIcon.schedule(1000, setVisible, false);
+		$BufferOverflowFix::LastFlushPosition = %position;
     }
 
-    $bufferOverflowFixSchedule = schedule(1, 0, "runBufferOverflowFix");
+    $BufferOverflowFixSchedule::loopSchedule = schedule(1, 0, "runBufferOverflowFix");
 }
 
 function enableBufferOverflowFix(%silent)
 {
-	if(!isEventPending($bufferOverflowFixSchedule))
+	if(!isEventPending($BufferOverflowFixSchedule::loopSchedule))
 	{
 		runBufferOverflowFix();
 		if(!%silent)
@@ -51,8 +62,14 @@ function disableBufferOverflowFix(%silent)
 		newChatHud_AddLine("\c6Buffer Overflow Fix disabled");
 
 	$BufferOverflowFix::Distance = $BufferOverflowFix::DefaultDistance;
-	$BufferOverflow::LastFlushPosition = "";
-	cancel($bufferOverflowFixSchedule);
+	$BufferOverflowFix::InstantDistance = $BufferOverflowFix::DefaultInstantDistance;
+	$BufferOverflowFix::LastFlushPosition = "";
+
+	cancel($bufferOverflowFix::loopSchedule);
+	cancel($BufferOverflowFix::flushSchedule);
+	cancel($BufferOverflowFix::iconSchedule);
+
+	BufferOverflowFixIcon.setVisible(false);
 }
 
 function clientCmdBufferOverflowHandshake(%this)
@@ -70,8 +87,17 @@ function clientCmdBufferOverflowSet(%cmd, %value)
 			disableBufferOverflowFix(%value == 1);
 
 		case "Distance":
+			%distance = mClampF(%value, 100, 1000000);
 			if(%distance > 0)
-				$BufferOverflowFix::Distance = mClamp(%distance, 100, 1000000); //dont know why youd want such a high number
+			{
+				$BufferOverflowFix::Distance = %distance;
+				$BufferOverflowFix::InstantDistance = $BufferOverflowFix::Distance * 1.333333;
+			}
+
+		case "InstantDistance":
+			%distance = mClampF(%value, 100, 1000000);
+			if(%distance > $BufferOverflowFix::Distance * 1.1)
+				$BufferOverflowFix::InstantDistance = %distance;
 	}
 }
 

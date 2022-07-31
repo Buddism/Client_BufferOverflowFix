@@ -40,8 +40,6 @@ function runBufferOverflowFix()
 		else
 			$BufferOverflowFix::flushSchedule = schedule(1000, 0, "flushVBOCache");
 
-		newChatHud_AddLine( (%distance > $BufferOverflowFix::InstantDistance ? "\c3" : "") @ %distance);
-
 		$BufferOverflowFix::iconSchedule = BufferOverflowFixIcon.schedule(1000, setVisible, false);
 		$BufferOverflowFix::LastFlushPosition = %position;
     }
